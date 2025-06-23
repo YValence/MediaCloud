@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📁 Cloud Galerie - Tous vos médias</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #666;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #667eea;
+        }
+
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #667eea;
+            border-radius: 1px;
+        }
+
+        .search-bar {
+            position: relative;
+            min-width: 300px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 3rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        .stats-bar {
+            background: rgba(255, 255, 255, 0.9);
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 1rem;
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            display: block;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .media-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .media-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .media-preview {
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .media-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .media-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .media-icon {
+            font-size: 3rem;
+            color: #94a3b8;
+        }
+
+        .media-info {
+            padding: 1.5rem;
+        }
+
+        .media-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1e293b;
+        }
+
+        .media-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+
+        .media-type {
+            background: #667eea;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .media-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 0.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            text-align: center;
+            color: white;
+        }
+
+        .btn-view {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 3rem 0;
+        }
+
+        .page-btn {
+            padding: 0.75rem 1rem;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .page-btn:hover,
+        .page-btn.active {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .no-results i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .search-bar {
+                min-width: auto;
+                width: 100%;
+            }
+
+            .media-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .filters {
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <i class="fas fa-cloud"></i>
+                    Cloud Galerie
+                </a>
+                
+                <nav class="nav-links">
+                    <a href="/" class="active">Galerie</a>
+                    <a href="/dossiers/">Dossiers</a>
+                    <a href="/admin/">Admin</a>
+                </nav>
+                
+                <form class="search-bar" method="GET">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="search" placeholder="Rechercher des médias..." value="{{ search_query }}">
+                    {% if type_actuel %}<input type="hidden" name="type" value="{{ type_actuel }}">{% endif %}
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Statistiques -->
+        <div class="stats-bar">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number">{{ stats.total_medias }}</span>
+                    <div class="stat-label">Total Médias</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">{{ stats.total_images }}</span>
+                    <div class="stat-label">Images</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">{{ stats.total_videos }}</span>
+                    <div class="stat-label">Vidéos</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">{{ stats.total_documents }}</span>
+                    <div class="stat-label">Documents</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">{{ stats.total_dossiers }}</span>
+                    <div class="stat-label">Dossiers</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtres -->
+        <div class="filters">
+            <a href="/?search={{ search_query }}" class="filter-btn {% if not type_actuel %}active{% endif %}">
+                <i class="fas fa-th-large"></i> Tous
+            </a>
+            <a href="/?type=image&search={{ search_query }}" class="filter-btn {% if type_actuel == 'image' %}active{% endif %}">
+                <i class="fas fa-image"></i> Images
+            </a>
+            <a href="/?type=video&search={{ search_query }}" class="filter-btn {% if type_actuel == 'video' %}active{% endif %}">
+                <i class="fas fa-video"></i> Vidéos
+            </a>
+            <a href="/?type=document&search={{ search_query }}" class="filter-btn {% if type_actuel == 'document' %}active{% endif %}">
+                <i class="fas fa-file-alt"></i> Documents
+            </a>
+        </div>
+
+        <!-- Grille des médias -->
+        {% if page_obj %}
+        <div class="media-grid">
+            {% for media in page_obj %}
+            <div class="media-card">
+                <div class="media-preview">
+                    {% if media.image %}
+                        <img src="{{ media.image.fichier.url }}" alt="{{ media.nom }}" loading="lazy">
+                    {% elif media.video %}
+                        <video preload="metadata" controls>
+                            <source src="{{ media.video.fichier.url }}" type="video/{{ media.video.format }}">
+                        </video>
+                    {% elif media.document %}
+                        <i class="fas fa-file-alt media-icon"></i>
+                    {% else %}
+                        <i class="fas fa-file media-icon"></i>
+                    {% endif %}
+                </div>
+                
+                <div class="media-info">
+                    <h3 class="media-title">{{ media.nom }}</h3>
+                    
+                    <div class="media-meta">
+                        <span>{{ media.get_taille_display }}</span>
+                        <span class="media-type">
+                            {% if media.image %}Image{% elif media.video %}Vidéo{% elif media.document %}Document{% else %}Média{% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="media-meta">
+                        <span><i class="fas fa-user"></i> {{ media.proprietaire.username }}</span>
+                        <span><i class="fas fa-calendar"></i> {{ media.date_creation|date:"d/m/Y" }}</span>
+                    </div>
+                    
+                    <div class="media-actions">
+                        <a href="/media/{{ media.id }}/" class="action-btn btn-view">
+                            <i class="fas fa-eye"></i> Voir
+                        </a>
+                        {% if media.image.fichier or media.video.fichier or media.document.fichier %}
+                        <a href="{{ media.image.fichier.url|default:media.video.fichier.url|default:media.document.fichier.url }}" 
+                           class="action-btn btn-download" download>
+                            <i class="fas fa-download"></i> Télécharger
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page=1{% if type_actuel %}&type={{ type_actuel }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="page-btn">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if type_actuel %}&type={{ type_actuel }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="page-btn">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            {% endif %}
+            
+            <span class="page-btn active">
+                {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if type_actuel %}&type={{ type_actuel }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="page-btn">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if type_actuel %}&type={{ type_actuel }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="page-btn">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <div class="no-results">
+            <i class="fas fa-search"></i>
+            <h2>Aucun média trouvé</h2>
+            <p>Essayez de modifier vos critères de recherche ou de filtrage.</p>
+        </div>
+        {% endif %}
+    </main>

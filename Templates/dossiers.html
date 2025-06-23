@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="program-page">
+	<main class="container">
+	<div class="page-title">
+            <h1><i class="fas fa-folder-open"></i> Dossiers</h1>
+            <p>Explorez les collections organisées de médias</p>
+    </div> 
+        {% if page_obj %}
+        <div class="dossiers-grid">
+            {% for dossier in page_obj %}
+            <div class="dossier-card">
+                <div class="dossier-header">
+                    <div class="dossier-icon">
+                        <i class="fas fa-folder"></i>
+                    </div>
+                    <div class="dossier-info">
+                        <h3>{{ dossier.nom }}</h3>
+                        <div class="dossier-meta">
+                            <i class="fas fa-user"></i> {{ dossier.proprietaire.username }}
+                            <span style="margin-left: 1rem;">
+                                <i class="fas fa-calendar"></i> {{ dossier.date_creation|date:"d/m/Y" }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dossier-stats">
+                    <div class="dossier-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">{{ dossier.get_media_count }}</span>
+                            <div class="stat-label">Médias</div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">
+                                {% if dossier.get_total_size < 1048576 %}
+                                    {{ dossier.get_total_size|filesizeformat }}
+                                {% elif dossier.get_total_size < 1073741824 %}
+                                    {{ dossier.get_total_size|filesizeformat }}
+                                {% else %}
+                                    {{ dossier.get_total_size|filesizeformat }}
+                                {% endif %}
+                            </span>
+                            <div class="stat-label">Taille</div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <div class="dossier-preview">
+                    <div class="preview-images">
+                        {% for media in dossier.medias.all|slice:":4" %}
+                            <div class="preview-image">
+                                {% if media.image %}
+                                    <img src="{{ media.image.fichier.url }}" alt="{{ media.nom }}">
+                                {% else %}
+                                    <div class="preview-placeholder">
+                                        {% if media.video %}
+                                            <i class="fas fa-video"></i>
+                                        {% elif media.document %}
+                                            <i class="fas fa-file-alt"></i>
+                                        {% else %}
+                                            <i class="fas fa-file"></i>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                                
+                                {% if forloop.counter == 4 and dossier.get_media_count > 4 %}
+                                    <div class="more-indicator">
+                                        +{{ dossier.get_media_count|add:"-4" }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% empty %}
+                            <div class="preview-image">
+                                <div class="preview-placeholder">
+                                    <i class="fas fa-folder-open"></i>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="dossier-actions">
+                    <a href="/dossier/{{ dossier.id }}/" class="action-btn btn-open">
+                        <i class="fas fa-folder-open"></i>
+                        Ouvrir
+                    </a>
+                    <a href="/dossier/{{ dossier.id }}/" class="action-btn btn-info">
+                        <i class="fas fa-info-circle"></i>
+                        Détails
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}" class="page-btn">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" class="page-btn">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            {% endif %}
+            
+            <span class="page-btn active">
+                {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" class="page-btn">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}" class="page-btn">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <div class="no-results">
+            <i class="fas fa-search"></i>
+            <h2>Aucun dossier trouvé</h2>
+            <p>Essayez de modifier vos critères de recherche.</p>
+        </div>
+        {% endif %}
+    </main>
+			
+</section><!-- /.programs-page -->
+
+{% endblock %}
