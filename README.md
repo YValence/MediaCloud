@@ -21,6 +21,9 @@ python setup_minio.py
 docker-compose up -d
 MinIO est accessible sur [le port ](http://localhost:9001)
 
+### creer les migrations Django
+python manage.py makemigrations
+
 ### Appliquer les migrations Django
 python manage.py migrate
 
