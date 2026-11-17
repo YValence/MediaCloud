@@ -1,0 +1,32 @@
+{% extends "app/base.html" %}
+{% block title %}Partagés avec moi{% endblock %}
+
+{% block breadcrumb %}
+  {% include "app/_icon.html" with name="chevron-right" size=14 %}
+  <span class="current">Partagés avec moi</span>
+{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h1>Partagés avec moi</h1>
+      <p>Les médias que les autres membres de la famille ont partagés avec vous.</p>
+    </div>
+  </div>
+
+  {% if medias %}
+    <section class="media-grid" aria-label="Médias partagés avec moi">
+      {% for m in medias %}
+        {% include "app/_media_card.html" with m=m %}
+      {% endfor %}
+    </section>
+  {% else %}
+    <div class="empty">
+      <span class="icon">{% include "app/_icon.html" with name="users" size=20 %}</span>
+      <h2>Rien n'est partagé avec vous</h2>
+      <p class="muted">Quand un membre partagera un média avec vous, il apparaîtra ici.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

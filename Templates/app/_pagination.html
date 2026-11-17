@@ -1,0 +1,19 @@
+{% if page_obj.has_other_pages %}
+<nav class="pagination" aria-label="Pagination">
+  <span class="muted">Affichage de {{ page_obj.start_index }} à {{ page_obj.end_index }} sur {{ page_obj.paginator.count }}</span>
+  <div class="row" style="gap: 4px">
+    {% if page_obj.has_previous %}
+      <a class="btn btn-ghost" href="?page={{ page_obj.previous_page_number }}{% if type_actuel %}&type={{ type_actuel }}{% endif %}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}">Précédent</a>
+    {% else %}
+      <span class="btn btn-ghost" aria-disabled="true">Précédent</span>
+    {% endif %}
+    <span class="btn btn-icon num" aria-current="page">{{ page_obj.number }}</span>
+    <span class="muted" style="padding: 0 4px">sur {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+      <a class="btn btn-ghost" href="?page={{ page_obj.next_page_number }}{% if type_actuel %}&type={{ type_actuel }}{% endif %}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}">Suivant</a>
+    {% else %}
+      <span class="btn btn-ghost" aria-disabled="true">Suivant</span>
+    {% endif %}
+  </div>
+</nav>
+{% endif %}

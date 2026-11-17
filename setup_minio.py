@@ -4,8 +4,8 @@ import json
 
 # REMPLACEZ par votre vraie IP
 MINIO_ENDPOINT = "localhost:9000"
-ACCESS_KEY = "2Tw6UR0sjgEZuzPZ99Fc"
-SECRET_KEY = "DKJJ7Rs4UKUhmJlwEV6MF1tcEZ5ctjXb01i9vj0I"
+ACCESS_KEY = "tkKsUMcKAEdK9rhlUsI3"
+SECRET_KEY = "HYPSWr3YiGxFoHA72ztGC58nn5zxeZwfxHQpUyoU"
 BUCKET_NAME = "appstockage"
 
 def setup_minio():

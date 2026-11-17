@@ -1,0 +1,10 @@
+{% comment %}Vignette d'un média enrichi par views._enrichir (variable : m).{% endcomment %}
+{% if m.type_media == "image" and m.specifique.fichier %}
+  <img src="{{ m.specifique.fichier.url }}" alt="{{ m.nom }}" loading="lazy">
+{% elif m.type_media == "video" %}
+  <span class="play">{% include "app/_icon.html" with name="play" size=18 %}</span>
+  {% if m.specifique.duree %}<span class="corner num">{{ m.specifique.get_duree_display }}</span>{% endif %}
+{% else %}
+  {% include "app/_icon.html" with name="document" size=32 stroke=1.5 %}
+  {% if m.type_media == "document" and m.specifique.nombre_pages %}<span class="corner num">{{ m.specifique.nombre_pages }} p.</span>{% endif %}
+{% endif %}
