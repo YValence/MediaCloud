@@ -18,24 +18,7 @@
   {% if medias %}
     <section class="media-grid" aria-label="Médias partagés avec moi">
       {% for m in medias %}
-      <a href="{% url 'detail_media' m.id %}" class="media-card">
-        <div class="thumb {{ m.type_media }}">
-          {% if m.type_media == "image" and m.specifique.fichier %}
-            <img src="{{ m.specifique.fichier.url }}" alt="{{ m.nom }}" loading="lazy">
-          {% elif m.type_media == "video" %}
-            <span class="play">{% include "app/_icon.html" with name="play" size=18 %}</span>
-          {% else %}
-            {% include "app/_icon.html" with name="document" size=32 stroke=1.5 %}
-          {% endif %}
-        </div>
-        <div class="media-meta">
-          <div class="title-row">
-            <span class="name">{{ m.nom }}</span>
-            <span class="badge">{{ m.type_label }}</span>
-          </div>
-          <span class="sub">par {{ m.partage_par.get_full_name|default:m.partage_par.username }} · {{ m.date_partage|date:"j M Y" }}</span>
-        </div>
-      </a>
+        {% include "app/_media_card.html" with m=m %}
       {% endfor %}
     </section>
   {% else %}

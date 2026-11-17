@@ -68,7 +68,7 @@
       <dl class="dl">
         <div><dt>Taille</dt><dd class="num">{{ media.get_taille_display }}</dd></div>
         {% if type_media == "image" %}<div><dt>Dimensions</dt><dd class="num">{{ media_specifique.get_dimensions_display }}</dd></div>{% endif %}
-        {% if type_media == "video" %}<div><dt>Durée</dt><dd class="num">{{ media.duree_display|default:"—" }}</dd></div>{% endif %}
+        {% if type_media == "video" %}<div><dt>Durée</dt><dd class="num">{{ media_specifique.get_duree_display|default:"—" }}</dd></div>{% endif %}
         {% if type_media == "document" %}<div><dt>Pages</dt><dd class="num">{{ media_specifique.nombre_pages }}</dd></div>{% endif %}
         <div><dt>Propriétaire</dt><dd>{{ media.proprietaire.get_full_name|default:media.proprietaire.username }}</dd></div>
         <div><dt>Créé le</dt><dd>{{ media.date_creation|date:"j M Y, H:i" }}</dd></div>
@@ -164,26 +164,4 @@
   </div>
 </section>
 {% endif %}
-{% endblock %}
-
-{% block scripts %}
-<script>
-  document.querySelectorAll('[role="tab"][aria-controls]').forEach(function (tab, _, tabs) {
-    tab.addEventListener('click', function () {
-      tabs.forEach(function (t) {
-        var on = t === tab;
-        t.classList.toggle('active', on);
-        t.setAttribute('aria-selected', on);
-        document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
-      });
-    });
-  });
-  document.querySelectorAll('[data-copy]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      navigator.clipboard.writeText(btn.dataset.copy).then(function () {
-        btn.querySelector('span').textContent = 'Lien copié';
-      });
-    });
-  });
-</script>
 {% endblock %}

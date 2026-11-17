@@ -144,7 +144,6 @@ button, input, select { font: inherit; color: inherit; }
 .btn-danger:hover { background: #B91C1C; }
 .btn-ghost { background: transparent; border-color: transparent; box-shadow: none; }
 .btn-ghost:hover { background: var(--hover); }
-.btn-dashed { border-style: dashed; border-color: #D4D4D4; box-shadow: none; }
 .btn-icon { width: 36px; padding: 0; }
 .btn-sm { height: 32px; font-size: 13px; }
 .btn[aria-disabled="true"] { color: #A3A3A3; pointer-events: none; box-shadow: none; }
@@ -180,8 +179,6 @@ button, input, select { font: inherit; color: inherit; }
 
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
 
-.progress { height: 6px; border-radius: 999px; background: #EDEDED; overflow: hidden; }
-.progress > span { display: block; height: 100%; background: var(--primary); }
 
 /* Segmented tabs */
 .tabs { display: inline-flex; flex-wrap: wrap; gap: 2px; background: var(--subtle); border-radius: 10px; padding: 3px; }
@@ -291,7 +288,6 @@ button, input, select { font: inherit; color: inherit; }
 
 .danger-zone { margin-top: auto; border: 1px solid #FECACA; border-radius: var(--radius-lg); padding: 14px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
 
-.similar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
 
 /* ---------- Auth ---------- */
 .auth { min-height: 100vh; padding: 40px 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; }

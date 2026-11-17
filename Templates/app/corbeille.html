@@ -20,13 +20,7 @@
       {% for m in medias %}
       <div class="media-card trashed">
         <a href="{% url 'detail_media' m.id %}" class="thumb {{ m.type_media }}" aria-label="{{ m.nom }}">
-          {% if m.type_media == "image" and m.specifique.fichier %}
-            <img src="{{ m.specifique.fichier.url }}" alt="{{ m.nom }}" loading="lazy">
-          {% elif m.type_media == "video" %}
-            <span class="play">{% include "app/_icon.html" with name="play" size=18 %}</span>
-          {% else %}
-            {% include "app/_icon.html" with name="document" size=32 stroke=1.5 %}
-          {% endif %}
+          {% include "app/_thumb.html" %}
         </a>
         <div class="media-meta">
           <div class="title-row">

@@ -1,22 +1,15 @@
+{% comment %}Carte cliquable d'un média (variable : m). Le sous-titre change pour un média partagé.{% endcomment %}
 <a href="{% url 'detail_media' m.id %}" class="media-card">
-  <div class="thumb {{ m.type_media }}">
-    {% if m.type_media == "image" and m.specifique.fichier %}
-      <img src="{{ m.specifique.fichier.url }}" alt="{{ m.nom }}" loading="lazy">
-    {% elif m.type_media == "video" %}
-      <span class="play">{% include "app/_icon.html" with name="play" size=18 %}</span>
-      {% if m.specifique.duree %}<span class="corner num">{{ m.duree_display }}</span>{% endif %}
-    {% elif m.type_media == "document" %}
-      {% include "app/_icon.html" with name="document" size=32 stroke=1.5 %}
-      {% if m.specifique.nombre_pages %}<span class="corner num">{{ m.specifique.nombre_pages }} p.</span>{% endif %}
-    {% else %}
-      {% include "app/_icon.html" with name="document" size=32 stroke=1.5 %}
-    {% endif %}
-  </div>
+  <div class="thumb {{ m.type_media }}">{% include "app/_thumb.html" %}</div>
   <div class="media-meta">
     <div class="title-row">
       <span class="name">{{ m.nom }}</span>
       <span class="badge">{{ m.type_label }}</span>
     </div>
-    <span class="sub">{{ m.get_taille_display }} · {{ m.date_creation|date:"j M Y" }}</span>
+    {% if m.partage_par %}
+      <span class="sub">par {{ m.partage_par.get_full_name|default:m.partage_par.username }} · {{ m.date_partage|date:"j M Y" }}</span>
+    {% else %}
+      <span class="sub">{{ m.get_taille_display }} · {{ m.date_creation|date:"j M Y" }}</span>
+    {% endif %}
   </div>
 </a>

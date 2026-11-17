@@ -20,7 +20,7 @@
     </div>
     {% if user.is_authenticated %}
     <div class="row">
-      <button type="button" class="btn" data-open-rename>{% include "app/_icon.html" with name="folder" %} Renommer</button>
+      <button type="button" class="btn" data-modal-open="renameModal">{% include "app/_icon.html" with name="folder" %} Renommer</button>
       <form method="post" action="{% url 'supprimer_dossier' dossier.id %}" onsubmit="return confirm('Supprimer le dossier « {{ dossier.nom|escapejs }} » ? Les médias qu''il contient seront conservés.');">{% csrf_token %}
         <button type="submit" class="btn btn-danger">{% include "app/_icon.html" with name="trash" %} Supprimer</button>
       </form>
@@ -63,7 +63,7 @@
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="renameTitle">
     <div class="modal-head">
       <h2 id="renameTitle">Renommer le dossier</h2>
-      <button type="button" class="btn btn-ghost btn-icon" data-close-rename aria-label="Fermer">&times;</button>
+      <button type="button" class="btn btn-ghost btn-icon" data-modal-close aria-label="Fermer">&times;</button>
     </div>
     <form method="post" action="{% url 'renommer_dossier' dossier.id %}" class="upload-form">
       {% csrf_token %}
@@ -72,28 +72,11 @@
         <input type="text" name="nom" id="renameInput" class="input" value="{{ dossier.nom }}" maxlength="255" required>
       </div>
       <div class="modal-actions">
-        <button type="button" class="btn" data-close-rename>Annuler</button>
+        <button type="button" class="btn" data-modal-close>Annuler</button>
         <button type="submit" class="btn btn-primary">Enregistrer</button>
       </div>
     </form>
   </div>
 </div>
-{% endif %}
-{% endblock %}
-
-{% block scripts %}
-{% if user.is_authenticated %}
-<script>
-(function () {
-  const modal = document.getElementById('renameModal');
-  if (!modal) return;
-  const open = () => { modal.hidden = false; document.body.style.overflow = 'hidden'; const i = modal.querySelector('input'); if (i) { i.focus(); i.select(); } };
-  const close = () => { modal.hidden = true; document.body.style.overflow = ''; };
-  document.querySelectorAll('[data-open-rename]').forEach(b => b.addEventListener('click', open));
-  document.querySelectorAll('[data-close-rename]').forEach(b => b.addEventListener('click', close));
-  modal.addEventListener('click', e => { if (e.target === modal) close(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) close(); });
-})();
-</script>
 {% endif %}
 {% endblock %}

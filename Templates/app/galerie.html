@@ -18,7 +18,7 @@
       <a href="{% url 'admin:Stockage_Cloud_dossier_add' %}" class="btn">{% include "app/_icon.html" with name="folder" %} Nouveau dossier</a>
       {% endif %}
       {% if user.is_authenticated %}
-      <button type="button" class="btn btn-primary" data-open-upload>{% include "app/_icon.html" with name="upload" %} Téléverser</button>
+      <button type="button" class="btn btn-primary" data-modal-open="uploadModal">{% include "app/_icon.html" with name="upload" %} Téléverser</button>
       {% else %}
       <a href="{% url 'connexion' %}?next={{ request.path }}" class="btn btn-primary">{% include "app/_icon.html" with name="upload" %} Téléverser</a>
       {% endif %}
@@ -69,15 +69,15 @@
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="uploadTitle">
     <div class="modal-head">
       <h2 id="uploadTitle">Téléverser un média</h2>
-      <button type="button" class="btn btn-ghost btn-icon" data-close-upload aria-label="Fermer">&times;</button>
+      <button type="button" class="btn btn-ghost btn-icon" data-modal-close aria-label="Fermer">&times;</button>
     </div>
     <form method="post" action="{% url 'upload_media' %}" enctype="multipart/form-data" class="upload-form">
       {% csrf_token %}
-      <label class="dropzone" id="dropzone">
+      <label class="dropzone">
         {% include "app/_icon.html" with name="upload" size=22 %}
         <span class="dz-text">Glissez un fichier ici ou <strong>cliquez pour choisir</strong></span>
-        <span class="dz-file muted" id="dzFile"></span>
-        <input type="file" name="fichier" id="fichierInput" required
+        <span class="dz-file muted"></span>
+        <input type="file" name="fichier" required
                accept=".jpg,.jpeg,.png,.gif,.bmp,.webp,.svg,.mp4,.avi,.mov,.wmv,.flv,.webm,.mkv,.pdf,.doc,.docx,.txt,.rtf,.odt,.ppt,.pptx,.xls,.xlsx">
       </label>
       <div class="field">
@@ -86,46 +86,11 @@
       </div>
       <p class="muted" style="font-size:12px">Images, vidéos et documents acceptés.</p>
       <div class="modal-actions">
-        <button type="button" class="btn" data-close-upload>Annuler</button>
+        <button type="button" class="btn" data-modal-close>Annuler</button>
         <button type="submit" class="btn btn-primary">{% include "app/_icon.html" with name="upload" %} Téléverser</button>
       </div>
     </form>
   </div>
 </div>
-{% endif %}
-{% endblock %}
-
-{% block scripts %}
-{% if user.is_authenticated %}
-<script>
-(function () {
-  const modal = document.getElementById('uploadModal');
-  if (!modal) return;
-  const fileInput = document.getElementById('fichierInput');
-  const dzFile = document.getElementById('dzFile');
-  const dropzone = document.getElementById('dropzone');
-
-  const open = () => { modal.hidden = false; document.body.style.overflow = 'hidden'; };
-  const close = () => { modal.hidden = true; document.body.style.overflow = ''; };
-
-  document.querySelectorAll('[data-open-upload]').forEach(b => b.addEventListener('click', open));
-  document.querySelectorAll('[data-close-upload]').forEach(b => b.addEventListener('click', close));
-  modal.addEventListener('click', e => { if (e.target === modal) close(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) close(); });
-
-  const showName = () => { dzFile.textContent = fileInput.files.length ? fileInput.files[0].name : ''; };
-  fileInput.addEventListener('change', showName);
-
-  ['dragover', 'dragenter'].forEach(ev => dropzone.addEventListener(ev, e => {
-    e.preventDefault(); dropzone.classList.add('dragging');
-  }));
-  ['dragleave', 'drop'].forEach(ev => dropzone.addEventListener(ev, e => {
-    e.preventDefault(); dropzone.classList.remove('dragging');
-  }));
-  dropzone.addEventListener('drop', e => {
-    if (e.dataTransfer.files.length) { fileInput.files = e.dataTransfer.files; showName(); }
-  });
-})();
-</script>
 {% endif %}
 {% endblock %}

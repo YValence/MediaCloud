@@ -14,7 +14,7 @@
       <p>{{ page_obj.paginator.count }} collection{{ page_obj.paginator.count|pluralize }} de médias</p>
     </div>
     {% if user.is_authenticated %}
-      <button type="button" class="btn btn-primary" data-open-folder>{% include "app/_icon.html" with name="plus" %} Nouveau dossier</button>
+      <button type="button" class="btn btn-primary" data-modal-open="folderModal">{% include "app/_icon.html" with name="plus" %} Nouveau dossier</button>
     {% else %}
       <a href="{% url 'connexion' %}?next={{ request.path }}" class="btn btn-primary">{% include "app/_icon.html" with name="plus" %} Nouveau dossier</a>
     {% endif %}
@@ -78,37 +78,20 @@
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="folderTitle">
     <div class="modal-head">
       <h2 id="folderTitle">Nouveau dossier</h2>
-      <button type="button" class="btn btn-ghost btn-icon" data-close-folder aria-label="Fermer">&times;</button>
+      <button type="button" class="btn btn-ghost btn-icon" data-modal-close aria-label="Fermer">&times;</button>
     </div>
     <form method="post" action="{% url 'creer_dossier' %}" class="upload-form">
       {% csrf_token %}
       <div class="field">
         <label for="folderName">Nom du dossier</label>
-        <input type="text" name="nom" id="folderName" class="input" placeholder="Ex. Vacances 2025" maxlength="255" required autofocus>
+        <input type="text" name="nom" id="folderName" class="input" placeholder="Ex. Vacances 2025" maxlength="255" required>
       </div>
       <div class="modal-actions">
-        <button type="button" class="btn" data-close-folder>Annuler</button>
+        <button type="button" class="btn" data-modal-close>Annuler</button>
         <button type="submit" class="btn btn-primary">{% include "app/_icon.html" with name="folder" %} Créer</button>
       </div>
     </form>
   </div>
 </div>
-{% endif %}
-{% endblock %}
-
-{% block scripts %}
-{% if user.is_authenticated %}
-<script>
-(function () {
-  const modal = document.getElementById('folderModal');
-  if (!modal) return;
-  const open = () => { modal.hidden = false; document.body.style.overflow = 'hidden'; const i = modal.querySelector('input'); if (i) i.focus(); };
-  const close = () => { modal.hidden = true; document.body.style.overflow = ''; };
-  document.querySelectorAll('[data-open-folder]').forEach(b => b.addEventListener('click', open));
-  document.querySelectorAll('[data-close-folder]').forEach(b => b.addEventListener('click', close));
-  modal.addEventListener('click', e => { if (e.target === modal) close(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) close(); });
-})();
-</script>
 {% endif %}
 {% endblock %}
