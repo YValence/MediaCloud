@@ -706,47 +706,55 @@
     if ($(".post-filter").length) {
       var postFilterList = $(".post-filter li");
       // for first init
-      $(".filter-layout").isotope({
-        filter: ".filter-item",
-        animationOptions: {
-          duration: 500,
-          easing: "linear",
-          queue: false
-        }
-      });
-      // on click filter links
-      postFilterList.on("click", function () {
-        var Self = $(this);
-        var selector = Self.attr("data-filter");
-        postFilterList.removeClass("active");
-        Self.addClass("active");
-
+      if ($(".filter-layout").length && $(".filter-layout .filter-item").length) {
         $(".filter-layout").isotope({
-          filter: selector,
+          filter: ".filter-item",
           animationOptions: {
             duration: 500,
             easing: "linear",
             queue: false
           }
+        })
+      postFilterList.on("click", function(e) {
+                if ($(e.target).is('a')) {
+                    return true; 
+                }
+                
+                e.preventDefault();
+                var Self = $(this);
+                var selector = Self.attr("data-filter");
+                postFilterList.removeClass("active");
+                Self.addClass("active");
+
+                $(".filter-layout").isotope({
+                    filter: selector,
+                    animationOptions: {
+                        duration: 500,
+                        easing: "linear",
+                        queue: false
+                    }
+                });
+            });
+        }
+    }
+
+     if ($(".post-filter.has-dynamic-filter-counter").length) {
+        var activeFilterItem = $(".post-filter.has-dynamic-filter-counter").find("li");
+
+        activeFilterItem.each(function() {
+            var filterElement = $(this).data("filter");
+            if (filterElement && $(".filter-layout").length) {
+                var count = $(".filter-layout").find(filterElement).length;
+                $(this).append("<sup>[" + count + "]</sup>");
+            }
         });
-        return false;
-      });
     }
 
-    if ($(".post-filter.has-dynamic-filter-counter").length) {
-      // var allItem = $('.single-filter-item').length;
 
-      var activeFilterItem = $(".post-filter.has-dynamic-filter-counter").find(
-        "li"
-      );
-
-      activeFilterItem.each(function () {
-        var filterElement = $(this).data("filter");
-        var count = $(".filter-layout").find(filterElement).length;
-        $(this).append("<sup>[" + count + "]</sup>");
-      });
+    if (typeof kidearn_cuved_circle === 'function') {
+        kidearn_cuved_circle();
     }
-
+    
     kidearn_cuved_circle();
   });
 
