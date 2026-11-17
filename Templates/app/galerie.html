@@ -1,0 +1,62 @@
+{% extends "app/base.html" %}
+{% block title %}Galerie{% endblock %}
+
+{% block breadcrumb %}
+  {% include "app/_icon.html" with name="chevron-right" size=14 %}
+  <span class="current">Galerie</span>
+{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h1>Galerie</h1>
+      <p>Tous les souvenirs de la famille, au même endroit.</p>
+    </div>
+    {% if user.is_staff %}
+    <div class="row">
+      <a href="{% url 'admin:Stockage_Cloud_dossier_add' %}" class="btn">{% include "app/_icon.html" with name="folder" %} Nouveau dossier</a>
+      <a href="{% url 'admin:Stockage_Cloud_image_add' %}" class="btn btn-primary">{% include "app/_icon.html" with name="upload" %} Téléverser</a>
+    </div>
+    {% endif %}
+  </div>
+
+  <section class="stats" aria-label="Statistiques">
+    <div class="stat"><span class="label">Total médias</span><span class="value">{{ stats.total_medias }}</span></div>
+    <div class="stat"><span class="label">Images</span><span class="value">{{ stats.total_images }}</span></div>
+    <div class="stat"><span class="label">Vidéos</span><span class="value">{{ stats.total_videos }}</span></div>
+    <div class="stat"><span class="label">Documents</span><span class="value">{{ stats.total_documents }}</span></div>
+    <div class="stat"><span class="label">Dossiers</span><span class="value">{{ stats.total_dossiers }}</span></div>
+  </section>
+
+  <div class="row-between">
+    <nav class="tabs" aria-label="Type de média">
+      <a href="?{% if search_query %}search={{ search_query|urlencode }}{% endif %}" class="tab {% if not type_actuel %}active{% endif %}">Tous <span class="count">{{ stats.total_medias }}</span></a>
+      <a href="?type=image{% if search_query %}&search={{ search_query|urlencode }}{% endif %}" class="tab {% if type_actuel == 'image' %}active{% endif %}">Images <span class="count">{{ stats.total_images }}</span></a>
+      <a href="?type=video{% if search_query %}&search={{ search_query|urlencode }}{% endif %}" class="tab {% if type_actuel == 'video' %}active{% endif %}">Vidéos <span class="count">{{ stats.total_videos }}</span></a>
+      <a href="?type=document{% if search_query %}&search={{ search_query|urlencode }}{% endif %}" class="tab {% if type_actuel == 'document' %}active{% endif %}">Documents <span class="count">{{ stats.total_documents }}</span></a>
+    </nav>
+    <form method="get" class="search" role="search">
+      {% if type_actuel %}<input type="hidden" name="type" value="{{ type_actuel }}">{% endif %}
+      <label for="q" class="sr-only">Rechercher un média</label>
+      {% include "app/_icon.html" with name="search" %}
+      <input id="q" type="search" name="search" value="{{ search_query }}" placeholder="Rechercher…" class="input">
+    </form>
+  </div>
+
+  {% if page_obj.object_list %}
+    <section class="media-grid" aria-label="Médias">
+      {% for m in page_obj %}
+        {% include "app/_media_card.html" with m=m %}
+      {% endfor %}
+    </section>
+    {% include "app/_pagination.html" %}
+  {% else %}
+    <div class="empty">
+      <span class="icon">{% include "app/_icon.html" with name="search" size=20 %}</span>
+      <h2>Aucun média trouvé</h2>
+      <p class="muted">{% if search_query %}Aucun résultat pour « {{ search_query }} ».{% else %}Téléversez vos premiers souvenirs pour remplir la galerie.{% endif %}</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

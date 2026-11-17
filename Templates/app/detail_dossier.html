@@ -1,0 +1,48 @@
+{% extends "app/base.html" %}
+{% block title %}{{ dossier.nom }}{% endblock %}
+
+{% block breadcrumb %}
+  {% include "app/_icon.html" with name="chevron-right" size=14 %}
+  <a href="{% url 'dossiers' %}">Dossiers</a>
+  {% include "app/_icon.html" with name="chevron-right" size=14 %}
+  <span class="current">{{ dossier.nom }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div class="page-head">
+    <div style="display: flex; gap: 14px; align-items: center">
+      <span class="folder-icon" style="width: 44px; height: 44px; border-radius: 10px">{% include "app/_icon.html" with name="folder" size=20 %}</span>
+      <div>
+        <h1>{{ dossier.nom }}</h1>
+        <p>{{ dossier.proprietaire.get_full_name|default:dossier.proprietaire.username }} · {{ dossier.get_media_count }} média{{ dossier.get_media_count|pluralize }} · {{ dossier.get_total_size|filesizeformat }}</p>
+      </div>
+    </div>
+    {% if user.is_staff %}
+      <a href="{% url 'admin:Stockage_Cloud_dossier_change' dossier.id %}" class="btn">Modifier le dossier</a>
+    {% endif %}
+  </div>
+
+  <nav class="tabs" aria-label="Type de média">
+    <a href="?" class="tab {% if not type_actuel %}active{% endif %}">Tous</a>
+    <a href="?type=image" class="tab {% if type_actuel == 'image' %}active{% endif %}">Images</a>
+    <a href="?type=video" class="tab {% if type_actuel == 'video' %}active{% endif %}">Vidéos</a>
+    <a href="?type=document" class="tab {% if type_actuel == 'document' %}active{% endif %}">Documents</a>
+  </nav>
+
+  {% if page_obj.object_list %}
+    <section class="media-grid" aria-label="Médias du dossier">
+      {% for m in page_obj %}
+        {% include "app/_media_card.html" with m=m %}
+      {% endfor %}
+    </section>
+    {% include "app/_pagination.html" %}
+  {% else %}
+    <div class="empty">
+      <span class="icon">{% include "app/_icon.html" with name="folder" size=20 %}</span>
+      <h2>Ce dossier est vide</h2>
+      <p class="muted">Aucun média de ce type dans « {{ dossier.nom }} ».</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

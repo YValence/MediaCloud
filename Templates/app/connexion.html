@@ -1,0 +1,42 @@
+{% extends "app/base.html" %}
+{% block title %}Connexion{% endblock %}
+
+{% block body %}
+<div class="auth">
+  <a href="{% url 'accueil' %}" class="brand">
+    <span class="brand-mark" style="width: 36px; height: 36px">{% include "app/_icon.html" with name="cloud" size=20 %}</span>
+    <strong style="font-size: 16px; font-weight: 600">MediaCloud</strong>
+  </a>
+
+  <form method="post" class="auth-card" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <div class="head">
+      <h1>Bon retour parmi nous</h1>
+      <p class="muted">Connectez-vous pour retrouver les souvenirs de la famille.</p>
+    </div>
+    <div class="body">
+      {% if form.non_field_errors %}
+        <div class="alert" role="alert">Identifiant ou mot de passe incorrect.</div>
+      {% endif %}
+      <div class="field">
+        <label for="id_username">Nom d'utilisateur</label>
+        <input id="id_username" name="username" type="text" class="input" autocomplete="username" autofocus required value="{{ form.username.value|default:'' }}">
+      </div>
+      <div class="field">
+        <label for="id_password">Mot de passe</label>
+        <input id="id_password" name="password" type="password" class="input" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width: 100%">Se connecter</button>
+    </div>
+    <div class="foot">Pas encore de compte ? Demandez un accès à l'administrateur de la famille.</div>
+  </form>
+
+  <ul class="pills" aria-label="Pourquoi MediaCloud">
+    <li>{% include "app/_icon.html" with name="home" size=14 %} Notre maison en ligne</li>
+    <li>{% include "app/_icon.html" with name="shield" size=14 %} Sécurisé et sûr</li>
+    <li>{% include "app/_icon.html" with name="clock" size=14 %} Conservons le passé</li>
+    <li>{% include "app/_icon.html" with name="users" size=14 %} Ensemble</li>
+  </ul>
+</div>
+{% endblock %}

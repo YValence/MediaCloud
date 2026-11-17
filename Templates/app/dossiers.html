@@ -1,0 +1,73 @@
+{% extends "app/base.html" %}
+{% block title %}Dossiers{% endblock %}
+
+{% block breadcrumb %}
+  {% include "app/_icon.html" with name="chevron-right" size=14 %}
+  <span class="current">Dossiers</span>
+{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h1>Dossiers</h1>
+      <p>{{ page_obj.paginator.count }} collection{{ page_obj.paginator.count|pluralize }} de médias</p>
+    </div>
+    {% if user.is_staff %}
+      <a href="{% url 'admin:Stockage_Cloud_dossier_add' %}" class="btn btn-primary">{% include "app/_icon.html" with name="plus" %} Nouveau dossier</a>
+    {% endif %}
+  </div>
+
+  <form method="get" class="search" role="search">
+    <label for="q" class="sr-only">Filtrer les dossiers</label>
+    {% include "app/_icon.html" with name="search" %}
+    <input id="q" type="search" name="search" value="{{ search_query }}" placeholder="Filtrer les dossiers…" class="input" style="width: 320px">
+  </form>
+
+  {% if page_obj.object_list %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Nom</th>
+          <th scope="col">Propriétaire</th>
+          <th scope="col" class="right">Médias</th>
+          <th scope="col" class="right">Taille</th>
+          <th scope="col">Créé le</th>
+          <th scope="col"><span class="sr-only">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for dossier in page_obj %}
+        <tr>
+          <td>
+            <a href="{% url 'detail_dossier' dossier.id %}" class="cell-name">
+              <span class="folder-icon">{% include "app/_icon.html" with name="folder" %}</span>
+              {{ dossier.nom }}
+            </a>
+          </td>
+          <td>
+            <span class="cell-user">
+              <span class="avatar avatar-sm avatar-round">{{ dossier.proprietaire.username|slice:":2" }}</span>
+              {{ dossier.proprietaire.get_full_name|default:dossier.proprietaire.username }}
+            </span>
+          </td>
+          <td class="right num">{{ dossier.get_media_count }}</td>
+          <td class="right num muted">{{ dossier.get_total_size|filesizeformat }}</td>
+          <td class="muted">{{ dossier.date_creation|date:"j M Y" }}</td>
+          <td class="right"><a href="{% url 'detail_dossier' dossier.id %}" class="btn btn-sm">Ouvrir</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "app/_pagination.html" %}
+  {% else %}
+  <div class="empty">
+    <span class="icon">{% include "app/_icon.html" with name="folder" size=20 %}</span>
+    <h2>Aucun dossier trouvé</h2>
+    <p class="muted">Essayez de modifier votre recherche.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

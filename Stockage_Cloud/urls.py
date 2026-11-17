@@ -17,6 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
+from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
 from . import views  
@@ -26,6 +27,13 @@ urlpatterns = [
     path('', views.galerie_publique, name='accueil'),
     path('dossiers/', views.dossiers_publics, name='dossiers'),
 
+    path('connexion/', auth_views.LoginView.as_view(
+        template_name='app/connexion.html',
+        redirect_authenticated_user=True,
+        next_page='accueil',
+    ), name='connexion'),
+    path('deconnexion/', auth_views.LogoutView.as_view(next_page='connexion'), name='deconnexion'),
+
     path('galerie/', views.galerie_publique, name='galerie_accueil'),
     path('galerie/1', views.galerie_publique, name='galerie_publique'),
     path('dossiers/', views.dossiers_publics, name='dossiers_publics'),
@@ -34,6 +42,7 @@ urlpatterns = [
     
     path('api/medias/', views.api_medias, name='api_medias'),
     path('api/stats/', views.statistiques_api, name='api_stats'),
+    path('api/statistiques/', views.statistiques_api, name='api_statistiques'),
 ]
 
 if settings.DEBUG:

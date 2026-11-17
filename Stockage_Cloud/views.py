@@ -3,7 +3,40 @@ from django.http import JsonResponse, HttpResponse
 from django.core.paginator import Paginator
 from django.db.models import Q
 from .models import Media, Image, Video, Document, Dossier
+from django.db.models import Sum
 import json
+
+
+TYPE_LABELS = {'image': 'Image', 'video': 'Vidéo', 'document': 'Document', 'media': 'Fichier'}
+
+
+def _type_et_specifique(media):
+    """Retourne (type, objet spécifique) pour un Media ou une de ses sous-classes."""
+    for type_media, modele in (('image', Image), ('video', Video), ('document', Document)):
+        if isinstance(media, modele):
+            return type_media, media
+    for type_media in ('image', 'video', 'document'):
+        try:
+            return type_media, getattr(media, type_media)
+        except (Image.DoesNotExist, Video.DoesNotExist, Document.DoesNotExist):
+            continue
+    return 'media', None
+
+
+def _enrichir(media):
+    """Ajoute type_media, specifique, type_label et duree_display pour les templates."""
+    media.type_media, media.specifique = _type_et_specifique(media)
+    media.type_label = TYPE_LABELS[media.type_media]
+    duree = getattr(media.specifique, 'duree', 0) if media.type_media == 'video' else 0
+    media.duree_display = f"{duree // 60}:{duree % 60:02d}" if duree else ''
+    return media
+
+
+def _contexte_commun(section):
+    return {
+        'section': section,
+        'stockage_total': Media.objects.aggregate(Sum('taille'))['taille__sum'] or 0,
+    }
 
 
 
@@ -36,14 +69,18 @@ def galerie_publique(request):
         'total_dossiers': Dossier.objects.count(),
     }
     
+    for media in page_obj:
+        _enrichir(media)
+
     context = {
+        **_contexte_commun('galerie'),
         'page_obj': page_obj,
         'stats': stats,
         'type_actuel': type_filtre,
         'search_query': search or '',
     }
-    
-    return render(request, 'index-3-one-page.html', context)
+
+    return render(request, 'app/galerie.html', context)
 
 def dossiers_publics(request):
     dossiers = Dossier.objects.all().order_by('-date_creation')
@@ -56,11 +93,12 @@ def dossiers_publics(request):
     page_obj = paginator.get_page(page_number)
     
     context = {
+        **_contexte_commun('dossiers'),
         'page_obj': page_obj,
         'search_query': search or '',
     }
-    
-    return render(request, 'dossiers.html', context)
+
+    return render(request, 'app/dossiers.html', context)
 
 def detail_dossier(request, dossier_id):
     """Vue pour afficher le contenu d'un dossier"""
@@ -80,46 +118,37 @@ def detail_dossier(request, dossier_id):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
+    for media in page_obj:
+        _enrichir(media)
+
     context = {
+        **_contexte_commun('dossiers'),
         'dossier': dossier,
         'page_obj': page_obj,
         'type_actuel': type_filtre,
     }
-    
-    return render(request, 'media_app/galerie/detail_dossier.html', context)
+
+    return render(request, 'app/detail_dossier.html', context)
 
 def detail_media(request, media_id):
     media = get_object_or_404(Media, id=media_id)
-    
-    media_specifique = None
-    type_media = 'media'
-    
-    try:
-        media_specifique = media.image
-        type_media = 'image'
-    except:
-        try:
-            media_specifique = media.video
-            type_media = 'video'
-        except:
-            try:
-                media_specifique = media.document
-                type_media = 'document'
-            except:
-                pass
-    
+
     medias_similaires = Media.objects.filter(
         proprietaire=media.proprietaire
     ).exclude(id=media.id)[:6]
     
+    _enrichir(media)
+    medias_similaires = [_enrichir(m) for m in medias_similaires]
+
     context = {
+        **_contexte_commun('galerie'),
         'media': media,
-        'media_specifique': media_specifique,
-        'type_media': type_media,
+        'media_specifique': media.specifique,
+        'type_media': media.type_media,
         'medias_similaires': medias_similaires,
     }
-    
-    return render(request, 'media_app/galerie/detail_media.html', context)
+
+    return render(request, 'app/detail_media.html', context)
 
 def api_medias(request):
     type_filtre = request.GET.get('type', 'all')
