@@ -112,6 +112,36 @@
       {% endif %}
     </div>
 
+    {% if user.is_authenticated %}
+    <div class="folder-box">
+      <strong style="font-weight: 500">Dossiers</strong>
+      <div class="chips">
+        {% for d in media.dossiers.all %}
+        <span class="chip">
+          <a href="{% url 'detail_dossier' d.id %}">{{ d.nom }}</a>
+          <form method="post" action="{% url 'retirer_du_dossier' d.id media.id %}" style="display:inline">{% csrf_token %}
+            <button type="submit" class="chip-x" title="Retirer de « {{ d.nom }} »" aria-label="Retirer du dossier">&times;</button>
+          </form>
+        </span>
+        {% empty %}
+        <span class="muted" style="font-size:13px">Ce média n'est dans aucun dossier.</span>
+        {% endfor %}
+      </div>
+      {% if dossiers_disponibles %}
+      <form method="post" action="{% url 'ajouter_au_dossier' media.id %}" class="share-form" style="margin-top:4px">{% csrf_token %}
+        <label for="dossier" class="sr-only">Ajouter à un dossier</label>
+        <select name="dossier" id="dossier" class="input" required>
+          <option value="" disabled selected>Ajouter à un dossier…</option>
+          {% for d in dossiers_disponibles %}
+          <option value="{{ d.id }}">{{ d.nom }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-sm">{% include "app/_icon.html" with name="folder" size=15 %} Ajouter</button>
+      </form>
+      {% endif %}
+    </div>
+    {% endif %}
+
     {% if user.is_staff and type_media != "media" %}
     <div class="danger-zone">
       <span style="display: flex; flex-direction: column"><strong style="font-weight: 500">Gérer ce média</strong><span class="muted" style="font-size: 12px">Modification et suppression dans l'admin.</span></span>

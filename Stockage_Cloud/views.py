@@ -221,6 +221,8 @@ def detail_media(request, media_id):
     deja_partages = media.partages.values_list('destinataire_id', flat=True)
     destinataires = User.objects.exclude(id=media.proprietaire_id).exclude(id__in=deja_partages).order_by('username')
 
+    dossiers_disponibles = Dossier.objects.exclude(medias=media).order_by('nom')
+
     context = {
         **_contexte_commun('galerie'),
         'media': media,
@@ -228,6 +230,7 @@ def detail_media(request, media_id):
         'type_media': media.type_media,
         'medias_similaires': medias_similaires,
         'destinataires': destinataires,
+        'dossiers_disponibles': dossiers_disponibles,
         'en_corbeille': media.id in _ids_corbeille(),
     }
 
@@ -422,6 +425,77 @@ def retirer_partage(request, partage_id):
     partage.delete()
     messages.success(request, "Le partage a été retiré.")
     return redirect('detail_media', media_id=media_id)
+
+
+# ===== Dossiers =====
+
+@login_required
+def creer_dossier(request):
+    """Crée un dossier."""
+    if request.method != 'POST':
+        return redirect('dossiers')
+    nom = (request.POST.get('nom') or '').strip()[:255]
+    if not nom:
+        messages.error(request, "Le nom du dossier est obligatoire.")
+        return redirect('dossiers')
+    dossier = Dossier.objects.create(nom=nom, proprietaire=request.user)
+    messages.success(request, f"Dossier « {nom} » créé.")
+    return redirect('detail_dossier', dossier_id=dossier.id)
+
+
+@login_required
+def renommer_dossier(request, dossier_id):
+    """Renomme un dossier."""
+    dossier = get_object_or_404(Dossier, id=dossier_id)
+    if request.method != 'POST':
+        return redirect('detail_dossier', dossier_id=dossier_id)
+    nom = (request.POST.get('nom') or '').strip()[:255]
+    if not nom:
+        messages.error(request, "Le nom du dossier est obligatoire.")
+    else:
+        dossier.nom = nom
+        dossier.save()
+        messages.success(request, "Dossier renommé.")
+    return redirect('detail_dossier', dossier_id=dossier_id)
+
+
+@login_required
+def supprimer_dossier(request, dossier_id):
+    """Supprime un dossier (les médias qu'il contient sont conservés)."""
+    if request.method != 'POST':
+        return redirect('detail_dossier', dossier_id=dossier_id)
+    dossier = get_object_or_404(Dossier, id=dossier_id)
+    nom = dossier.nom
+    dossier.delete()
+    messages.success(request, f"Dossier « {nom} » supprimé. Les médias sont conservés.")
+    return redirect('dossiers')
+
+
+@login_required
+def ajouter_au_dossier(request, media_id):
+    """Ajoute un média à un dossier."""
+    if request.method != 'POST':
+        return redirect('detail_media', media_id=media_id)
+    media = get_object_or_404(Media, id=media_id)
+    dossier = Dossier.objects.filter(id=request.POST.get('dossier')).first()
+    if not dossier:
+        messages.error(request, "Dossier invalide.")
+    else:
+        dossier.medias.add(media)
+        messages.success(request, f"« {media.nom} » ajouté au dossier « {dossier.nom} ».")
+    return redirect('detail_media', media_id=media_id)
+
+
+@login_required
+def retirer_du_dossier(request, dossier_id, media_id):
+    """Retire un média d'un dossier."""
+    if request.method != 'POST':
+        return redirect('detail_dossier', dossier_id=dossier_id)
+    dossier = get_object_or_404(Dossier, id=dossier_id)
+    media = get_object_or_404(Media, id=media_id)
+    dossier.medias.remove(media)
+    messages.success(request, f"« {media.nom} » retiré du dossier.")
+    return redirect('detail_dossier', dossier_id=dossier_id)
 
 
 @login_required

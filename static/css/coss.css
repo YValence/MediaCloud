@@ -345,3 +345,16 @@ button, input, select { font: inherit; color: inherit; }
 .share-form select { flex: 1; }
 .media-card.trashed .thumb { opacity: .85; }
 .media-card.trashed { display: flex; flex-direction: column; }
+
+/* Gestion des dossiers */
+.card-wrap { position: relative; }
+.card-remove { position: absolute; top: 8px; right: 8px; opacity: 0; transition: opacity .15s ease; }
+.card-wrap:hover .card-remove, .card-remove:focus-within { opacity: 1; }
+.card-remove .btn { background: var(--surface); box-shadow: var(--shadow-sm); }
+.folder-box { display: flex; flex-direction: column; gap: 10px; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); }
+.folder-box .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 4px 3px 10px; border: 1px solid var(--border); border-radius: 999px; font-size: 13px; background: var(--subtle); }
+.chip a { text-decoration: none; color: var(--fg); }
+.chip a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.chip-x { border: 0; background: transparent; cursor: pointer; color: var(--muted); font-size: 16px; line-height: 1; width: 18px; height: 18px; border-radius: 50%; }
+.chip-x:hover { background: var(--hover); color: var(--danger); }

@@ -53,6 +53,13 @@ urlpatterns = [
     path('partage/<int:partage_id>/retirer/', views.retirer_partage, name='retirer_partage'),
     path('partages/', views.partages_view, name='partages'),
 
+    # Dossiers (gestion)
+    path('dossiers/creer/', views.creer_dossier, name='creer_dossier'),
+    path('dossier/<int:dossier_id>/renommer/', views.renommer_dossier, name='renommer_dossier'),
+    path('dossier/<int:dossier_id>/supprimer/', views.supprimer_dossier, name='supprimer_dossier'),
+    path('media/<int:media_id>/ajouter-dossier/', views.ajouter_au_dossier, name='ajouter_au_dossier'),
+    path('dossier/<int:dossier_id>/retirer/<int:media_id>/', views.retirer_du_dossier, name='retirer_du_dossier'),
+
     path('api/medias/', views.api_medias, name='api_medias'),
     path('api/stats/', views.statistiques_api, name='api_stats'),
     path('api/statistiques/', views.statistiques_api, name='api_statistiques'),
