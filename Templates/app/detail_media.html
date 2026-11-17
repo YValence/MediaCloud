@@ -9,12 +9,23 @@
 {% endblock %}
 
 {% block topbar_actions %}
-  {% if media_specifique.fichier %}
   <div class="row">
+    {% if media_specifique.fichier %}
     <button type="button" class="btn" data-copy="{{ media_specifique.fichier.url }}">{% include "app/_icon.html" with name="link" %} <span>Copier le lien</span></button>
     <a href="{{ media_specifique.fichier.url }}" class="btn btn-primary" download>{% include "app/_icon.html" with name="download" %} Télécharger</a>
+    {% endif %}
+    {% if user.is_authenticated %}
+      {% if en_corbeille %}
+      <form method="post" action="{% url 'restaurer_media' media.id %}">{% csrf_token %}
+        <button type="submit" class="btn">{% include "app/_icon.html" with name="upload" %} Restaurer</button>
+      </form>
+      {% else %}
+      <form method="post" action="{% url 'supprimer_media' media.id %}">{% csrf_token %}
+        <button type="submit" class="btn btn-danger">{% include "app/_icon.html" with name="trash" %} Supprimer</button>
+      </form>
+      {% endif %}
+    {% endif %}
   </div>
-  {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -72,11 +83,33 @@
           <span class="avatar avatar-round">{{ p.destinataire.username|slice:":2" }}</span>
           <span class="grow"><strong style="font-weight: 500">{{ p.destinataire.get_full_name|default:p.destinataire.username }}</strong><span>depuis le {{ p.date_partage|date:"j M Y" }}</span></span>
           <span class="badge"><span class="dot {% if p.actif %}dot-ok{% endif %}"></span>{% if p.actif %}Actif{% else %}Révoqué{% endif %}</span>
+          {% if user.is_authenticated %}
+          <form method="post" action="{% url 'retirer_partage' p.id %}" style="margin-left:6px">{% csrf_token %}
+            <button type="submit" class="btn btn-ghost btn-icon btn-sm" title="Retirer le partage" aria-label="Retirer le partage">{% include "app/_icon.html" with name="trash" size=15 %}</button>
+          </form>
+          {% endif %}
         </li>
         {% empty %}
         <li class="muted">Ce média n'est partagé avec personne.</li>
         {% endfor %}
       </ul>
+
+      {% if user.is_authenticated %}
+      {% if destinataires %}
+      <form method="post" action="{% url 'partager_media' media.id %}" class="share-form">{% csrf_token %}
+        <label for="destinataire" class="sr-only">Partager avec</label>
+        <select name="destinataire" id="destinataire" class="input" required>
+          <option value="" disabled selected>Partager avec…</option>
+          {% for u in destinataires %}
+          <option value="{{ u.id }}">{{ u.get_full_name|default:u.username }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm">{% include "app/_icon.html" with name="users" size=15 %} Partager</button>
+      </form>
+      {% else %}
+      <p class="muted" style="font-size:12px; margin-top:8px">Aucun autre utilisateur disponible pour le partage.</p>
+      {% endif %}
+      {% endif %}
     </div>
 
     {% if user.is_staff and type_media != "media" %}

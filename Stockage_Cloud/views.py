@@ -4,11 +4,34 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.conf import settings
-from .models import Media, Image, Video, Document, Dossier
+from .models import Media, Image, Video, Document, Dossier, Corbeille, Partage
 from django.db.models import Sum
 import os
 import json
+
+
+def _ids_corbeille():
+    """IDs des médias actuellement dans la corbeille."""
+    return list(Corbeille.objects.values_list('media_supprime_id', flat=True))
+
+
+def _hors_corbeille(qs):
+    """Exclut d'un queryset (Media ou sous-classe) les médias en corbeille."""
+    return qs.exclude(id__in=_ids_corbeille())
+
+
+def _stats():
+    """Compteurs de la bibliothèque, hors corbeille."""
+    trashed = _ids_corbeille()
+    return {
+        'total_medias': Media.objects.exclude(id__in=trashed).count(),
+        'total_images': Image.objects.exclude(id__in=trashed).count(),
+        'total_videos': Video.objects.exclude(id__in=trashed).count(),
+        'total_documents': Document.objects.exclude(id__in=trashed).count(),
+        'total_dossiers': Dossier.objects.count(),
+    }
 
 
 TYPE_LABELS = {'image': 'Image', 'video': 'Vidéo', 'document': 'Document', 'media': 'Fichier'}
@@ -39,7 +62,7 @@ def _enrichir(media):
 def _contexte_commun(section):
     return {
         'section': section,
-        'stockage_total': Media.objects.aggregate(Sum('taille'))['taille__sum'] or 0,
+        'stockage_total': _hors_corbeille(Media.objects).aggregate(Sum('taille'))['taille__sum'] or 0,
     }
 
 
@@ -101,7 +124,7 @@ def upload_media(request):
 
 def galerie_publique(request):
     medias = Media.objects.all().order_by('-date_creation')
-    
+
     type_filtre = request.GET.get('type')
     if type_filtre:
         if type_filtre == 'image':
@@ -110,24 +133,20 @@ def galerie_publique(request):
             medias = Video.objects.all().order_by('-date_creation')
         elif type_filtre == 'document':
             medias = Document.objects.all().order_by('-date_creation')
-    
+
+    medias = _hors_corbeille(medias)
+
     search = request.GET.get('search')
     if search:
         medias = medias.filter(nom__icontains=search)
-    
-    paginator = Paginator(medias, 12) 
+
+    paginator = Paginator(medias, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
+
     # Statistiques
-    stats = {
-        'total_medias': Media.objects.count(),
-        'total_images': Image.objects.count(),
-        'total_videos': Video.objects.count(),
-        'total_documents': Document.objects.count(),
-        'total_dossiers': Dossier.objects.count(),
-    }
-    
+    stats = _stats()
+
     for media in page_obj:
         _enrichir(media)
 
@@ -162,8 +181,8 @@ def dossiers_publics(request):
 def detail_dossier(request, dossier_id):
     """Vue pour afficher le contenu d'un dossier"""
     dossier = get_object_or_404(Dossier, id=dossier_id)
-    medias = dossier.medias.all().order_by('-date_creation')
-    
+    medias = _hors_corbeille(dossier.medias.all()).order_by('-date_creation')
+
     type_filtre = request.GET.get('type')
     if type_filtre:
         if type_filtre == 'image':
@@ -199,12 +218,17 @@ def detail_media(request, media_id):
     _enrichir(media)
     medias_similaires = [_enrichir(m) for m in medias_similaires]
 
+    deja_partages = media.partages.values_list('destinataire_id', flat=True)
+    destinataires = User.objects.exclude(id=media.proprietaire_id).exclude(id__in=deja_partages).order_by('username')
+
     context = {
         **_contexte_commun('galerie'),
         'media': media,
         'media_specifique': media.specifique,
         'type_media': media.type_media,
         'medias_similaires': medias_similaires,
+        'destinataires': destinataires,
+        'en_corbeille': media.id in _ids_corbeille(),
     }
 
     return render(request, 'app/detail_media.html', context)
@@ -223,11 +247,12 @@ def api_medias(request):
         medias = Document.objects.all()
     else:
         medias = Media.objects.all()
-    
+
+    medias = _hors_corbeille(medias)
 
     if search:
         medias = medias.filter(nom__icontains=search)
-    
+
     medias = medias.order_by('-date_creation')
     
     paginator = Paginator(medias, per_page)
@@ -300,3 +325,123 @@ def statistiques_api(request):
         'taille_octets': taille_totale,
         'top_proprietaires': list(proprietaires_stats),
     })
+
+
+# ===== Corbeille =====
+
+@login_required
+def supprimer_media(request, media_id):
+    """Déplace un média dans la corbeille (suppression douce)."""
+    if request.method != 'POST':
+        return redirect('detail_media', media_id=media_id)
+    media = get_object_or_404(Media, id=media_id)
+    Corbeille.objects.get_or_create(media_supprime=media, defaults={'utilisateur': request.user})
+    messages.success(request, f"« {media.nom} » a été déplacé dans la corbeille.")
+    return redirect('accueil')
+
+
+@login_required
+def corbeille_view(request):
+    """Liste les médias dans la corbeille."""
+    corbeilles = Corbeille.objects.select_related('utilisateur', 'media_supprime').order_by('-date_suppression')
+    medias = []
+    for c in corbeilles:
+        media = c.media_supprime
+        _enrichir(media)
+        media.supprime_par = c.utilisateur
+        media.date_suppression = c.date_suppression
+        medias.append(media)
+    context = {
+        **_contexte_commun('corbeille'),
+        'medias': medias,
+        'stats': _stats(),
+    }
+    return render(request, 'app/corbeille.html', context)
+
+
+@login_required
+def restaurer_media(request, media_id):
+    """Sort un média de la corbeille."""
+    if request.method != 'POST':
+        return redirect('corbeille')
+    media = get_object_or_404(Media, id=media_id)
+    Corbeille.objects.filter(media_supprime=media).delete()
+    messages.success(request, f"« {media.nom} » a été restauré.")
+    return redirect('corbeille')
+
+
+@login_required
+def supprimer_definitif(request, media_id):
+    """Supprime définitivement un média (fichier MinIO + base)."""
+    if request.method != 'POST':
+        return redirect('corbeille')
+    media = get_object_or_404(Media, id=media_id)
+    nom = media.nom
+    _, specifique = _type_et_specifique(media)
+    if specifique is not None and getattr(specifique, 'fichier', None):
+        try:
+            specifique.fichier.delete(save=False)
+        except Exception:
+            pass
+    media.delete()
+    messages.success(request, f"« {nom} » a été supprimé définitivement.")
+    return redirect('corbeille')
+
+
+# ===== Partage =====
+
+@login_required
+def partager_media(request, media_id):
+    """Partage un média avec un autre utilisateur."""
+    if request.method != 'POST':
+        return redirect('detail_media', media_id=media_id)
+    media = get_object_or_404(Media, id=media_id)
+    destinataire = User.objects.filter(id=request.POST.get('destinataire')).first()
+    if not destinataire:
+        messages.error(request, "Destinataire invalide.")
+    elif destinataire == media.proprietaire:
+        messages.error(request, "Le propriétaire a déjà accès à ce média.")
+    else:
+        _, cree = Partage.objects.update_or_create(
+            media_partage=media, destinataire=destinataire, defaults={'actif': True}
+        )
+        messages.success(
+            request,
+            f"« {media.nom} » est partagé avec {destinataire.get_full_name() or destinataire.username}."
+        )
+    return redirect('detail_media', media_id=media_id)
+
+
+@login_required
+def retirer_partage(request, partage_id):
+    """Retire un partage existant."""
+    if request.method != 'POST':
+        return redirect('accueil')
+    partage = get_object_or_404(Partage, id=partage_id)
+    media_id = partage.media_partage_id
+    partage.delete()
+    messages.success(request, "Le partage a été retiré.")
+    return redirect('detail_media', media_id=media_id)
+
+
+@login_required
+def partages_view(request):
+    """Médias partagés avec l'utilisateur courant."""
+    partages = Partage.objects.filter(
+        destinataire=request.user, actif=True
+    ).select_related('media_partage', 'media_partage__proprietaire').order_by('-date_partage')
+    medias = []
+    for p in partages:
+        media = _hors_corbeille(Media.objects.filter(id=p.media_partage_id)).first()
+        if media is None:
+            continue
+        _enrichir(media)
+        media.partage_par = p.media_partage.proprietaire
+        media.date_partage = p.date_partage
+        medias.append(media)
+    context = {
+        **_contexte_commun('partages'),
+        'medias': medias,
+        'stats': _stats(),
+    }
+    return render(request, 'app/partages.html', context)

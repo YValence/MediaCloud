@@ -39,8 +39,19 @@ urlpatterns = [
     path('dossiers/', views.dossiers_publics, name='dossiers_publics'),
     path('dossier/<int:dossier_id>/', views.detail_dossier, name='detail_dossier'),
     path('media/<int:media_id>/', views.detail_media, name='detail_media'),
-    
+
     path('upload/', views.upload_media, name='upload_media'),
+
+    # Corbeille
+    path('media/<int:media_id>/supprimer/', views.supprimer_media, name='supprimer_media'),
+    path('corbeille/', views.corbeille_view, name='corbeille'),
+    path('corbeille/<int:media_id>/restaurer/', views.restaurer_media, name='restaurer_media'),
+    path('corbeille/<int:media_id>/supprimer-definitif/', views.supprimer_definitif, name='supprimer_definitif'),
+
+    # Partage
+    path('media/<int:media_id>/partager/', views.partager_media, name='partager_media'),
+    path('partage/<int:partage_id>/retirer/', views.retirer_partage, name='retirer_partage'),
+    path('partages/', views.partages_view, name='partages'),
 
     path('api/medias/', views.api_medias, name='api_medias'),
     path('api/stats/', views.statistiques_api, name='api_stats'),

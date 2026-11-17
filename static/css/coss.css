@@ -339,3 +339,9 @@ button, input, select { font: inherit; color: inherit; }
 .field { display: flex; flex-direction: column; gap: 6px; }
 .field label { font-size: 13px; font-weight: 500; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+
+/* Partage (onglet détail) */
+.share-form { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-soft); }
+.share-form select { flex: 1; }
+.media-card.trashed .thumb { opacity: .85; }
+.media-card.trashed { display: flex; flex-direction: column; }
