@@ -1,1 +1,9 @@
 env/
+__pycache__/
+*.pyc
+*.pyo
+staticfiles/
+
+# Données d'exécution MinIO (stockage binaire + secrets de comptes de service)
+minIO/data/
+minIO/minio_data/

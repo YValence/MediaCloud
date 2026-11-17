@@ -6,7 +6,7 @@ class MinIOMediaStorage(S3Boto3Storage):
     """Backend de stockage personnalisé pour MinIO"""
     bucket_name = 'appstockage'
     endpoint_url = 'http://localhost:9000'
-    access_key = 'qv6QjoEcNVwmwGwdGKLK'
-    secret_key = 'ZaWK9qOT1DRrfarpopHcYuE208NgzDgMPZ5Nn63N'
+    access_key = 'tkKsUMcKAEdK9rhlUsI3'
+    secret_key = 'HYPSWr3YiGxFoHA72ztGC58nn5zxeZwfxHQpUyoU'
     file_overwrite = False
     default_acl = None

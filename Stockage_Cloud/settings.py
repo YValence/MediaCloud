@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'storages',
     'Stockage_Cloud',
 ]
 
@@ -105,9 +106,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'fr-fr'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Paris'
 
 USE_I18N = True
 
@@ -117,10 +118,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-# Configuration pour les fichiers médias (local en dev, cloud en prod)
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Configuration des fichiers statiques (reste inchangée)
+# Configuration des fichiers statiques
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
@@ -145,20 +143,9 @@ ADMIN_MEDIA_PREFIX = '/static/admin/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # =====================================
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'storages',  # AJOUTER CETTE LIGNE
-    'Stockage_Cloud',
-]
-
 # Configuration MinIO/S3
-AWS_ACCESS_KEY_ID = 'qv6QjoEcNVwmwGwdGKLK'
-AWS_SECRET_ACCESS_KEY = 'ZaWK9qOT1DRrfarpopHcYuE208NgzDgMPZ5Nn63N'
+AWS_ACCESS_KEY_ID = 'tkKsUMcKAEdK9rhlUsI3'
+AWS_SECRET_ACCESS_KEY = 'HYPSWr3YiGxFoHA72ztGC58nn5zxeZwfxHQpUyoU'
 AWS_STORAGE_BUCKET_NAME = 'appstockage'
 AWS_S3_ENDPOINT_URL = 'http://localhost:9000'
 AWS_S3_USE_SSL = False
@@ -166,6 +153,14 @@ AWS_S3_VERIFY = False
 AWS_DEFAULT_ACL = None
 AWS_S3_SIGNATURE_VERSION = 's3v4'
 
-# Configuration des fichiers médias avec MinIO
-DEFAULT_FILE_STORAGE = 'Stockage_Cloud.storage_backends.MinIOMediaStorage'
+# Configuration du stockage (Django 5.x : API STORAGES)
+STORAGES = {
+    "default": {
+        "BACKEND": "Stockage_Cloud.storage_backends.MinIOMediaStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
 MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/"
