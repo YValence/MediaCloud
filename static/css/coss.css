@@ -305,3 +305,37 @@ button, input, select { font: inherit; color: inherit; }
 .alert { border: 1px solid #FECACA; background: #FEF2F2; color: #991B1B; border-radius: var(--radius); padding: 10px 12px; }
 .pills { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 520px; }
 .pills li { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #525252; border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 4px 10px; }
+
+/* ===== Upload : modale, dropzone, toasts ===== */
+.messages { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.toast {
+  padding: 10px 14px; border-radius: var(--radius); font-size: 14px;
+  border: 1px solid var(--border); background: var(--surface); color: var(--fg);
+  box-shadow: var(--shadow-xs);
+}
+.toast.success { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 10%, var(--surface)); }
+.toast.error { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, var(--surface)); }
+
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center;
+  background: rgba(15, 18, 24, 0.45); padding: 16px;
+}
+.modal[role="dialog"], .modal-overlay .modal {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm); width: 100%; max-width: 460px; padding: 20px;
+}
+.modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.modal-head h2 { font-size: 18px; margin: 0; }
+.upload-form { display: flex; flex-direction: column; gap: 14px; }
+.dropzone {
+  display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;
+  padding: 28px 16px; border: 1.5px dashed var(--border); border-radius: var(--radius);
+  background: var(--subtle); color: var(--muted); cursor: pointer; transition: all .15s ease;
+}
+.dropzone:hover, .dropzone.dragging { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 7%, var(--surface)); color: var(--fg); }
+.dropzone .dz-text { font-size: 14px; }
+.dropzone .dz-file { font-size: 13px; font-weight: 500; color: var(--primary); }
+.dropzone input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 13px; font-weight: 500; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }

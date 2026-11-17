@@ -72,6 +72,13 @@
         </nav>
         {% block topbar_actions %}{% endblock %}
       </header>
+      {% if messages %}
+      <div class="messages" role="status" aria-live="polite">
+        {% for message in messages %}
+        <div class="toast {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
       {% block content %}{% endblock %}
     </main>
   </div>

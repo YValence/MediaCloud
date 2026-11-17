@@ -40,6 +40,8 @@ urlpatterns = [
     path('dossier/<int:dossier_id>/', views.detail_dossier, name='detail_dossier'),
     path('media/<int:media_id>/', views.detail_media, name='detail_media'),
     
+    path('upload/', views.upload_media, name='upload_media'),
+
     path('api/medias/', views.api_medias, name='api_medias'),
     path('api/stats/', views.statistiques_api, name='api_stats'),
     path('api/statistiques/', views.statistiques_api, name='api_statistiques'),

@@ -1,9 +1,13 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponse
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.conf import settings
 from .models import Media, Image, Video, Document, Dossier
 from django.db.models import Sum
+import os
 import json
 
 
@@ -38,6 +42,61 @@ def _contexte_commun(section):
         'stockage_total': Media.objects.aggregate(Sum('taille'))['taille__sum'] or 0,
     }
 
+
+
+def _detecter_type(filename):
+    """Déduit ('image'|'video'|'document', extension) d'un nom de fichier, via settings.MEDIA_EXTENSIONS."""
+    ext = os.path.splitext(filename)[1].lower()
+    correspondance = {'images': 'image', 'videos': 'video', 'documents': 'document'}
+    for categorie, extensions in settings.MEDIA_EXTENSIONS.items():
+        if ext in extensions:
+            return correspondance[categorie], ext
+    return None, ext
+
+
+@login_required
+def upload_media(request):
+    """Téléverse un fichier depuis l'UI : détecte le type, remplit les métadonnées, stocke sur MinIO."""
+    if request.method != 'POST':
+        return redirect('accueil')
+
+    fichier = request.FILES.get('fichier')
+    if not fichier:
+        messages.error(request, "Aucun fichier sélectionné.")
+        return redirect('accueil')
+
+    type_media, ext = _detecter_type(fichier.name)
+    if not type_media:
+        messages.error(request, f"Type de fichier non pris en charge ({ext or 'inconnu'}).")
+        return redirect('accueil')
+
+    nom = (request.POST.get('nom') or os.path.splitext(fichier.name)[0]).strip()[:255] or 'Sans titre'
+    commun = {'nom': nom, 'taille': fichier.size, 'proprietaire': request.user, 'fichier': fichier}
+
+    try:
+        if type_media == 'image':
+            media = Image(**commun)
+            try:
+                from PIL import Image as PILImage
+                fichier.seek(0)
+                with PILImage.open(fichier) as im:
+                    media.largeur, media.hauteur = im.width, im.height
+            except Exception:
+                pass
+            finally:
+                fichier.seek(0)
+            media.save()
+        elif type_media == 'video':
+            media = Video(**commun, format=ext.lstrip('.'))
+            media.save()
+        else:
+            media = Document(**commun, type=ext.lstrip('.'))
+            media.save()
+        messages.success(request, f"« {nom} » a été téléversé.")
+    except Exception as e:
+        messages.error(request, f"Échec du téléversement : {e}")
+
+    return redirect('accueil')
 
 
 def galerie_publique(request):
