@@ -14,6 +14,8 @@ Seulement deux fichiers, chargés par `Templates/app/base.html`. Pas de framewor
 - Les classes `success` / `error` servent aux messages flash Django (`message.tags`) : ne pas les supprimer
   même si on ne les voit pas dans les templates.
 - Avant de supprimer une règle, vérifier qu'aucun template ni `app.js` n'utilise la classe.
+- Un élément masqué avec l'attribut `hidden` réapparaît si une règle lui donne `display: flex/grid` :
+  ajouter alors `.classe[hidden] { display: none; }` (déjà fait pour `.modal-overlay`).
 
 ## `js/app.js`
 
@@ -26,6 +28,6 @@ Comportements branchés par attributs HTML :
 | `data-modal-close` (dans la fenêtre) | la ferme ; Échap et clic sur le fond aussi |
 | `role="tab"` + `aria-controls="idPanneau"` | onglets |
 | `data-copy="texte"` | copie le texte dans le presse-papiers |
-| `.dropzone` avec un `input[type=file]` et un `.dz-file` | glisser-déposer + affichage du nom |
+| `.dropzone` avec un `input[type=file]` et un `.dz-file` | glisser-déposer + nom du fichier (ou « N fichiers sélectionnés ») |
 
 Pour un nouveau comportement : l'ajouter ici, branché par un attribut `data-…`, plutôt qu'un `<script>` dans un template.

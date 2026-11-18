@@ -1,0 +1,33 @@
+{% extends "app/base.html" %}
+{% block title %}Favoris{% endblock %}
+
+{% block breadcrumb %}
+  {% include "app/_icon.html" with name="chevron-right" size=14 %}
+  <span class="current">Favoris</span>
+{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h1>Favoris</h1>
+      <p>Vos souvenirs préférés, ajoutés avec l'étoile sur la page d'un média.</p>
+    </div>
+  </div>
+
+  {% if page_obj.object_list %}
+    <section class="media-grid" aria-label="Mes favoris">
+      {% for m in page_obj.object_list %}
+        {% include "app/_media_card.html" with m=m %}
+      {% endfor %}
+    </section>
+    {% include "app/_pagination.html" %}
+  {% else %}
+    <div class="empty">
+      <span class="icon">{% include "app/_icon.html" with name="star" size=20 %}</span>
+      <h2>Aucun favori pour l'instant</h2>
+      <p class="muted">Ouvrez un média et cliquez sur « Ajouter aux favoris ».</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

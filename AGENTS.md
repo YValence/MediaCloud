@@ -41,6 +41,7 @@ Sans MinIO démarré, les pages s'affichent mais les fichiers (images, vidéos) 
 Il n'y a pas encore de tests automatisés. Pour tester sans abîmer la base, utiliser le client de test Django
 dans un `transaction.atomic()` avec `transaction.set_rollback(True)`.
 Ne jamais tester `upload_media` ni `supprimer_definitif` contre le vrai MinIO sans prévenir : ils écrivent ou suppriment de vrais fichiers.
+Pour tester l'upload sans MinIO, remplacer `S3Boto3Storage._save` et `S3Boto3Storage.exists` avec `unittest.mock.patch.object`.
 
 ## Règles du projet
 

@@ -13,16 +13,7 @@
       <h1>Galerie</h1>
       <p>Tous les souvenirs de la famille, au même endroit.</p>
     </div>
-    <div class="row">
-      {% if user.is_staff %}
-      <a href="{% url 'admin:Stockage_Cloud_dossier_add' %}" class="btn">{% include "app/_icon.html" with name="folder" %} Nouveau dossier</a>
-      {% endif %}
-      {% if user.is_authenticated %}
-      <button type="button" class="btn btn-primary" data-modal-open="uploadModal">{% include "app/_icon.html" with name="upload" %} Téléverser</button>
-      {% else %}
-      <a href="{% url 'connexion' %}?next={{ request.path }}" class="btn btn-primary">{% include "app/_icon.html" with name="upload" %} Téléverser</a>
-      {% endif %}
-    </div>
+    <button type="button" class="btn btn-primary" data-modal-open="uploadModal">{% include "app/_icon.html" with name="upload" %} Téléverser</button>
   </div>
 
   <section class="stats" aria-label="Statistiques">
@@ -64,33 +55,5 @@
   {% endif %}
 </div>
 
-{% if user.is_authenticated %}
-<div class="modal-overlay" id="uploadModal" hidden>
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="uploadTitle">
-    <div class="modal-head">
-      <h2 id="uploadTitle">Téléverser un média</h2>
-      <button type="button" class="btn btn-ghost btn-icon" data-modal-close aria-label="Fermer">&times;</button>
-    </div>
-    <form method="post" action="{% url 'upload_media' %}" enctype="multipart/form-data" class="upload-form">
-      {% csrf_token %}
-      <label class="dropzone">
-        {% include "app/_icon.html" with name="upload" size=22 %}
-        <span class="dz-text">Glissez un fichier ici ou <strong>cliquez pour choisir</strong></span>
-        <span class="dz-file muted"></span>
-        <input type="file" name="fichier" required
-               accept=".jpg,.jpeg,.png,.gif,.bmp,.webp,.svg,.mp4,.avi,.mov,.wmv,.flv,.webm,.mkv,.pdf,.doc,.docx,.txt,.rtf,.odt,.ppt,.pptx,.xls,.xlsx">
-      </label>
-      <div class="field">
-        <label for="nomInput">Nom (optionnel)</label>
-        <input type="text" name="nom" id="nomInput" class="input" placeholder="Laisser vide pour le nom du fichier" maxlength="255">
-      </div>
-      <p class="muted" style="font-size:12px">Images, vidéos et documents acceptés.</p>
-      <div class="modal-actions">
-        <button type="button" class="btn" data-modal-close>Annuler</button>
-        <button type="submit" class="btn btn-primary">{% include "app/_icon.html" with name="upload" %} Téléverser</button>
-      </div>
-    </form>
-  </div>
-</div>
-{% endif %}
+{% include "app/_upload_modal.html" %}
 {% endblock %}

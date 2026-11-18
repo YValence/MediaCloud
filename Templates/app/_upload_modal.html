@@ -1,0 +1,38 @@
+{% comment %}Fenêtre de téléversement. Variable optionnelle : dossier_courant (le dossier est alors présélectionné).{% endcomment %}
+<div class="modal-overlay" id="uploadModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="uploadTitle">
+    <div class="modal-head">
+      <h2 id="uploadTitle">Téléverser des médias</h2>
+      <button type="button" class="btn btn-ghost btn-icon" data-modal-close aria-label="Fermer">&times;</button>
+    </div>
+    <form method="post" action="{% url 'upload_media' %}" enctype="multipart/form-data" class="upload-form">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <label class="dropzone">
+        {% include "app/_icon.html" with name="upload" size=22 %}
+        <span class="dz-text">Glissez vos fichiers ici ou <strong>cliquez pour choisir</strong></span>
+        <span class="dz-file muted"></span>
+        <input type="file" name="fichiers" multiple required
+               accept="{% for exts in extensions_acceptees %}{{ exts|join:',' }}{% if not forloop.last %},{% endif %}{% endfor %}">
+      </label>
+      <div class="field">
+        <label for="dossierUpload">Ranger dans un dossier (optionnel)</label>
+        <select name="dossier" id="dossierUpload" class="input">
+          <option value="">Aucun dossier</option>
+          {% for d in dossiers_modifiables %}
+          <option value="{{ d.id }}" {% if d.id == dossier_courant.id %}selected{% endif %}>{{ d.nom }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="nomInput">Nom (seulement pour un fichier unique)</label>
+        <input type="text" name="nom" id="nomInput" class="input" placeholder="Laisser vide pour le nom du fichier" maxlength="255">
+      </div>
+      <p class="muted" style="font-size:12px">Images, vidéos et documents acceptés. La date de prise de vue des photos est lue automatiquement.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn" data-modal-close>Annuler</button>
+        <button type="submit" class="btn btn-primary">{% include "app/_icon.html" with name="upload" %} Téléverser</button>
+      </div>
+    </form>
+  </div>
+</div>

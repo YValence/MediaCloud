@@ -14,7 +14,14 @@
     <button type="button" class="btn" data-copy="{{ media_specifique.fichier.url }}">{% include "app/_icon.html" with name="link" %} <span>Copier le lien</span></button>
     <a href="{{ media_specifique.fichier.url }}" class="btn btn-primary" download>{% include "app/_icon.html" with name="download" %} Télécharger</a>
     {% endif %}
-    {% if user.is_authenticated %}
+    <form method="post" action="{% url 'basculer_favori' media.id %}">{% csrf_token %}
+      {% if est_favori %}
+      <button type="submit" class="btn" aria-pressed="true">{% include "app/_icon.html" with name="star-plein" %} Favori</button>
+      {% else %}
+      <button type="submit" class="btn" aria-pressed="false">{% include "app/_icon.html" with name="star" %} Ajouter aux favoris</button>
+      {% endif %}
+    </form>
+    {% if peut_modifier %}
       {% if en_corbeille %}
       <form method="post" action="{% url 'restaurer_media' media.id %}">{% csrf_token %}
         <button type="submit" class="btn">{% include "app/_icon.html" with name="upload" %} Restaurer</button>
@@ -71,7 +78,8 @@
         {% if type_media == "video" %}<div><dt>Durée</dt><dd class="num">{{ media_specifique.get_duree_display|default:"—" }}</dd></div>{% endif %}
         {% if type_media == "document" %}<div><dt>Pages</dt><dd class="num">{{ media_specifique.nombre_pages }}</dd></div>{% endif %}
         <div><dt>Propriétaire</dt><dd>{{ media.proprietaire.get_full_name|default:media.proprietaire.username }}</dd></div>
-        <div><dt>Créé le</dt><dd>{{ media.date_creation|date:"j M Y, H:i" }}</dd></div>
+        {% if media.date_prise %}<div><dt>Prise le</dt><dd>{{ media.date_prise|date:"j M Y, H:i" }}</dd></div>{% endif %}
+        <div><dt>Ajouté le</dt><dd>{{ media.date_creation|date:"j M Y, H:i" }}</dd></div>
         <div><dt>Dossiers</dt><dd>{% for d in media.dossiers.all %}<a href="{% url 'detail_dossier' d.id %}" style="text-decoration: underline; text-underline-offset: 3px">{{ d.nom }}</a>{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</dd></div>
       </dl>
     </div>
@@ -83,7 +91,7 @@
           <span class="avatar avatar-round">{{ p.destinataire.username|slice:":2" }}</span>
           <span class="grow"><strong style="font-weight: 500">{{ p.destinataire.get_full_name|default:p.destinataire.username }}</strong><span>depuis le {{ p.date_partage|date:"j M Y" }}</span></span>
           <span class="badge"><span class="dot {% if p.actif %}dot-ok{% endif %}"></span>{% if p.actif %}Actif{% else %}Révoqué{% endif %}</span>
-          {% if user.is_authenticated %}
+          {% if peut_modifier or p.destinataire_id == user.id %}
           <form method="post" action="{% url 'retirer_partage' p.id %}" style="margin-left:6px">{% csrf_token %}
             <button type="submit" class="btn btn-ghost btn-icon btn-sm" title="Retirer le partage" aria-label="Retirer le partage">{% include "app/_icon.html" with name="trash" size=15 %}</button>
           </form>
@@ -94,7 +102,7 @@
         {% endfor %}
       </ul>
 
-      {% if user.is_authenticated %}
+      {% if peut_modifier %}
       {% if destinataires %}
       <form method="post" action="{% url 'partager_media' media.id %}" class="share-form">{% csrf_token %}
         <label for="destinataire" class="sr-only">Partager avec</label>
@@ -112,16 +120,18 @@
       {% endif %}
     </div>
 
-    {% if user.is_authenticated %}
     <div class="folder-box">
       <strong style="font-weight: 500">Dossiers</strong>
       <div class="chips">
         {% for d in media.dossiers.all %}
         <span class="chip">
           <a href="{% url 'detail_dossier' d.id %}">{{ d.nom }}</a>
+          {% if user.is_staff or d.proprietaire_id == user.id %}
           <form method="post" action="{% url 'retirer_du_dossier' d.id media.id %}" style="display:inline">{% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
             <button type="submit" class="chip-x" title="Retirer de « {{ d.nom }} »" aria-label="Retirer du dossier">&times;</button>
           </form>
+          {% endif %}
         </span>
         {% empty %}
         <span class="muted" style="font-size:13px">Ce média n'est dans aucun dossier.</span>
@@ -140,7 +150,6 @@
       </form>
       {% endif %}
     </div>
-    {% endif %}
 
     {% if user.is_staff and type_media != "media" %}
     <div class="danger-zone">

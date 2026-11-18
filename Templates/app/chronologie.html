@@ -1,0 +1,45 @@
+{% extends "app/base.html" %}
+{% block title %}Chronologie{% endblock %}
+
+{% block breadcrumb %}
+  {% include "app/_icon.html" with name="chevron-right" size=14 %}
+  <span class="current">Chronologie</span>
+{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h1>Chronologie</h1>
+      <p>Les souvenirs classés par mois, selon la date de prise de vue (ou la date d'ajout si elle est inconnue).</p>
+    </div>
+    <button type="button" class="btn btn-primary" data-modal-open="uploadModal">{% include "app/_icon.html" with name="upload" %} Téléverser</button>
+  </div>
+
+  {% if page_obj.object_list %}
+    {% regroup page_obj.object_list by mois as groupes %}
+    {% for groupe in groupes %}
+    <section class="timeline-groupe" aria-labelledby="mois-{{ forloop.counter }}">
+      <h2 class="timeline-mois" id="mois-{{ forloop.counter }}">
+        {{ groupe.grouper|date:"F Y"|capfirst }}
+        <span class="muted num">{{ groupe.list|length }} média{{ groupe.list|length|pluralize }}</span>
+      </h2>
+      <div class="media-grid">
+        {% for m in groupe.list %}
+          {% include "app/_media_card.html" with m=m %}
+        {% endfor %}
+      </div>
+    </section>
+    {% endfor %}
+    {% include "app/_pagination.html" %}
+  {% else %}
+    <div class="empty">
+      <span class="icon">{% include "app/_icon.html" with name="calendar" size=20 %}</span>
+      <h2>Aucun souvenir pour l'instant</h2>
+      <p class="muted">Téléversez des photos : elles seront rangées ici par mois.</p>
+    </div>
+  {% endif %}
+</div>
+
+{% include "app/_upload_modal.html" %}
+{% endblock %}
