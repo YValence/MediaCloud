@@ -26,21 +26,18 @@
       <a href="{% url 'dossiers' %}" class="nav-item {% if section == 'dossiers' %}active{% endif %}" {% if section == 'dossiers' %}aria-current="page"{% endif %}>
         {% include "app/_icon.html" with name="folder" %} Dossiers
       </a>
-      {% if user.is_authenticated %}
+      <a href="{% url 'chronologie' %}" class="nav-item {% if section == 'chronologie' %}active{% endif %}" {% if section == 'chronologie' %}aria-current="page"{% endif %}>
+        {% include "app/_icon.html" with name="calendar" %} Chronologie
+      </a>
+      <a href="{% url 'favoris' %}" class="nav-item {% if section == 'favoris' %}active{% endif %}" {% if section == 'favoris' %}aria-current="page"{% endif %}>
+        {% include "app/_icon.html" with name="star" %} Favoris
+      </a>
       <a href="{% url 'partages' %}" class="nav-item {% if section == 'partages' %}active{% endif %}" {% if section == 'partages' %}aria-current="page"{% endif %}>
         {% include "app/_icon.html" with name="users" %} <span class="grow">Partagés avec moi</span>
       </a>
       <a href="{% url 'corbeille' %}" class="nav-item {% if section == 'corbeille' %}active{% endif %}" {% if section == 'corbeille' %}aria-current="page"{% endif %}>
         {% include "app/_icon.html" with name="trash" %} <span class="grow">Corbeille</span>
       </a>
-      {% else %}
-      <span class="nav-item disabled" aria-disabled="true" title="Connectez-vous">
-        {% include "app/_icon.html" with name="users" %} <span class="grow">Partagés avec moi</span>
-      </span>
-      <span class="nav-item disabled" aria-disabled="true" title="Connectez-vous">
-        {% include "app/_icon.html" with name="trash" %} <span class="grow">Corbeille</span>
-      </span>
-      {% endif %}
     </nav>
 
     {% if user.is_staff %}
@@ -57,7 +54,6 @@
       </div>
       {% endif %}
 
-      {% if user.is_authenticated %}
       <div class="user-chip">
         <span class="avatar">{{ user.username|slice:":2" }}</span>
         <span class="info"><strong style="font-weight: 500">{{ user.get_full_name|default:user.username }}</strong><span>{% if user.is_staff %}Administrateur{% else %}Membre{% endif %}</span></span>
@@ -66,9 +62,6 @@
           <button type="submit" class="btn btn-ghost btn-icon" aria-label="Se déconnecter">{% include "app/_icon.html" with name="logout" %}</button>
         </form>
       </div>
-      {% else %}
-      <a href="{% url 'connexion' %}" class="btn">Se connecter</a>
-      {% endif %}
     </div>
   </aside>
 

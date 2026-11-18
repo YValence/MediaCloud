@@ -18,8 +18,9 @@
         <p>{{ dossier.proprietaire.get_full_name|default:dossier.proprietaire.username }} · {{ dossier.get_media_count }} média{{ dossier.get_media_count|pluralize }} · {{ dossier.get_total_size|filesizeformat }}</p>
       </div>
     </div>
-    {% if user.is_authenticated %}
+    {% if peut_modifier %}
     <div class="row">
+      <button type="button" class="btn btn-primary" data-modal-open="uploadModal">{% include "app/_icon.html" with name="upload" %} Téléverser ici</button>
       <button type="button" class="btn" data-modal-open="renameModal">{% include "app/_icon.html" with name="folder" %} Renommer</button>
       <form method="post" action="{% url 'supprimer_dossier' dossier.id %}" onsubmit="return confirm('Supprimer le dossier « {{ dossier.nom|escapejs }} » ? Les médias qu''il contient seront conservés.');">{% csrf_token %}
         <button type="submit" class="btn btn-danger">{% include "app/_icon.html" with name="trash" %} Supprimer</button>
@@ -40,7 +41,7 @@
       {% for m in page_obj %}
         <div class="card-wrap">
           {% include "app/_media_card.html" with m=m %}
-          {% if user.is_authenticated %}
+          {% if peut_modifier %}
           <form method="post" action="{% url 'retirer_du_dossier' dossier.id m.id %}" class="card-remove">{% csrf_token %}
             <button type="submit" class="btn btn-ghost btn-icon btn-sm" title="Retirer du dossier" aria-label="Retirer du dossier">{% include "app/_icon.html" with name="trash" size=15 %}</button>
           </form>
@@ -58,7 +59,8 @@
   {% endif %}
 </div>
 
-{% if user.is_authenticated %}
+{% if peut_modifier %}
+{% include "app/_upload_modal.html" with dossier_courant=dossier %}
 <div class="modal-overlay" id="renameModal" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="renameTitle">
     <div class="modal-head">

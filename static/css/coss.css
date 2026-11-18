@@ -23,6 +23,7 @@
   --vid-bg: #FFF4EC;  --vid-fg: #C2410C;
   --doc-bg: #F4F4F5;  --doc-fg: #404040;
   --ok: #16A34A;
+  --fav: #D97706;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -112,8 +113,6 @@ button, input, select { font: inherit; color: inherit; }
 }
 .nav-item:hover { background: var(--hover); color: var(--fg); }
 .nav-item.active { background: var(--hover); color: var(--fg); font-weight: 500; }
-.nav-item.disabled { color: var(--muted); cursor: default; }
-.nav-item.disabled:hover { background: transparent; color: var(--muted); }
 .nav-item .grow { flex: 1; }
 
 .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 12px; }
@@ -226,7 +225,22 @@ button, input, select { font: inherit; color: inherit; }
   font-size: 12px; font-weight: 500; line-height: 20px;
   background: rgba(10, 10, 10, 0.75); color: #fff; border-radius: 6px; padding: 0 6px;
 }
+.thumb .fav-badge {
+  position: absolute; top: 8px; left: 8px;
+  width: 26px; height: 26px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92); color: var(--fav); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex; align-items: center; justify-content: center;
+}
 .media-meta { display: flex; flex-direction: column; gap: 2px; padding: 0 2px; }
+
+/* Chronologie : un titre de mois au-dessus de chaque grille */
+.timeline-groupe { display: flex; flex-direction: column; gap: 12px; }
+.timeline-mois {
+  display: flex; align-items: baseline; gap: 10px;
+  font-size: 16px; font-weight: 600;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border-soft);
+}
+.timeline-mois .muted { font-size: 13px; font-weight: 400; }
 .media-meta .title-row { display: flex; align-items: center; gap: 8px; }
 .media-meta .name { flex: 1; min-width: 0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .media-meta .sub { font-size: 13px; color: var(--muted); }
@@ -316,6 +330,8 @@ button, input, select { font: inherit; color: inherit; }
   position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center;
   background: rgba(15, 18, 24, 0.45); padding: 16px;
 }
+/* display:flex ci-dessus écraserait l'attribut hidden : on le rétablit */
+.modal-overlay[hidden] { display: none; }
 .modal[role="dialog"], .modal-overlay .modal {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm); width: 100%; max-width: 460px; padding: 20px;

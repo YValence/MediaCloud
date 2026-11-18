@@ -17,7 +17,10 @@ urlpatterns = [
 
     # Galerie et médias
     path('', views.galerie, name='accueil'),
+    path('chronologie/', views.chronologie, name='chronologie'),
+    path('favoris/', views.favoris, name='favoris'),
     path('upload/', views.upload_media, name='upload_media'),
+    path('media/<int:media_id>/favori/', views.basculer_favori, name='basculer_favori'),
     path('media/<int:media_id>/', views.detail_media, name='detail_media'),
     path('media/<int:media_id>/supprimer/', views.supprimer_media, name='supprimer_media'),
     path('media/<int:media_id>/partager/', views.partager_media, name='partager_media'),

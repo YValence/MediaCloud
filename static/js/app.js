@@ -58,7 +58,8 @@
     var input = zone.querySelector('input[type="file"]');
     var nomFichier = zone.querySelector('.dz-file');
     var afficherNom = function () {
-      nomFichier.textContent = input.files.length ? input.files[0].name : '';
+      var n = input.files.length;
+      nomFichier.textContent = n === 1 ? input.files[0].name : (n > 1 ? n + ' fichiers sélectionnés' : '');
     };
 
     input.addEventListener('change', afficherNom);

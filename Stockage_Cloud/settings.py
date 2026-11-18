@@ -29,6 +29,8 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # Toutes les pages exigent d'être connecté (sauf la connexion et l'admin, qui gèrent eux-mêmes)
+    'django.contrib.auth.middleware.LoginRequiredMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -61,7 +63,7 @@ DATABASES = {
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Page vers laquelle @login_required redirige les visiteurs non connectés
+# Page vers laquelle les visiteurs non connectés sont redirigés
 LOGIN_URL = 'connexion'
 
 AUTH_PASSWORD_VALIDATORS = [

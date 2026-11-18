@@ -27,6 +27,11 @@ class Media(models.Model):
     taille = models.BigIntegerField(default=0)  # en octets
     date_creation = models.DateTimeField(default=timezone.now)
     proprietaire = models.ForeignKey(User, on_delete=models.CASCADE, related_name='medias')
+    # Date où la photo a été prise (lue dans ses données EXIF) ; vide si inconnue
+    date_prise = models.DateTimeField(null=True, blank=True)
+
+    def peut_etre_modifie_par(self, user):
+        return user.is_staff or self.proprietaire_id == user.id
 
     def get_taille_display(self):
         return filesizeformat(self.taille)
@@ -69,6 +74,9 @@ class Dossier(models.Model):
     medias = models.ManyToManyField(Media, blank=True, related_name='dossiers')
     date_creation = models.DateTimeField(default=timezone.now)
 
+    def peut_etre_modifie_par(self, user):
+        return user.is_staff or self.proprietaire_id == user.id
+
     def get_media_count(self):
         return self.medias.count()
 
@@ -99,3 +107,17 @@ class Partage(models.Model):
 
     def __str__(self):
         return f"Partage: {self.media_partage.nom} -> {self.destinataire.username}"
+
+
+class Favori(models.Model):
+    utilisateur = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favoris')
+    media = models.ForeignKey(Media, on_delete=models.CASCADE, related_name='favoris')
+    date_ajout = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['utilisateur', 'media'], name='favori_unique'),
+        ]
+
+    def __str__(self):
+        return f"{self.utilisateur.username} ★ {self.media.nom}"

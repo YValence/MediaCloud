@@ -1,6 +1,9 @@
 {% comment %}Carte cliquable d'un média (variable : m). Le sous-titre change pour un média partagé.{% endcomment %}
 <a href="{% url 'detail_media' m.id %}" class="media-card">
-  <div class="thumb {{ m.type_media }}">{% include "app/_thumb.html" %}</div>
+  <div class="thumb {{ m.type_media }}">
+    {% include "app/_thumb.html" %}
+    {% if m.est_favori %}<span class="fav-badge" title="Favori">{% include "app/_icon.html" with name="star-plein" size=14 %}<span class="sr-only">Favori</span></span>{% endif %}
+  </div>
   <div class="media-meta">
     <div class="title-row">
       <span class="name">{{ m.nom }}</span>
